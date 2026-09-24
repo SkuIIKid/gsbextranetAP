@@ -5,7 +5,14 @@ body {
   margin: 0px;
   font-size: 12px;
   padding: 0px;
+  display: flex;             /* AJOUT */
+  flex-direction: column;    /* AJOUT */
+  min-height: 100vh;         /* AJOUT */
 }
+
+.page-content {
+   flex: 1 0 auto;
+ }
 
 .page-content > .row {
   margin-left: 0px !important;
@@ -22,7 +29,7 @@ footer{
    font-size:14px;
    line-height:25px;
    padding:10px 0px 10px 0px;
-   bottom: 0px;
+   flex-shrink: 0;           /* AJOUT (et "bottom: 0px" supprimé) */
 }
 
 footer a{
@@ -387,7 +394,7 @@ body {
 /** Login & Signup **/
 
 .login-wrapper {
-  position: absolute;
+  position: relative;
   left: 0;
   right: 0;
   text-align: center;

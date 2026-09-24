@@ -15,9 +15,26 @@ switch($action){
 		
            
 		$leLogin = htmlspecialchars($_POST['login']);
+        $leNom = htmlspecialchars($_POST['nom']);
+        $lePrenom = htmlspecialchars($_POST['prenom']);
         $lePassword = htmlspecialchars($_POST['mdp']);
-        
-        
+
+        //RGPD : le consentement doit être un acte positif et explicite de l'utilisateur.
+        //On ne fait JAMAIS confiance au seul attribut HTML "required" : il peut être
+        //contourné (JS désactivé, requête POST forgée...). La vérification doit être
+        //refaite côté serveur, qui est le seul endroit fiable pour prouver le consentement.
+        $consentementOk = isset($_POST['consentement']) && $_POST['consentement'] == 'on';
+        if (!$consentementOk) {
+            echo 'Vous devez accepter la politique de protection des données pour créer un compte<br/>';
+        }
+
+        //id de la version de politique qui était affichée au moment où l'utilisateur a coché la case
+        $idVersion = isset($_POST['idVersion']) ? (int) $_POST['idVersion'] : 0;
+        if ($consentementOk && $idVersion <= 0) {
+            echo 'Erreur : version de la politique inconnue, merci de recharger la page<br/>';
+            $consentementOk = false;
+        }
+
         if ($leLogin == $_POST['login'])
         {
              $loginOk = true;
@@ -38,6 +55,14 @@ switch($action){
             echo 'Le login n\'a pas été saisi<br/>';
             $rempli=false;
         }
+        if (empty($leNom)==true) {
+            echo 'Le nom n\'a pas été saisi<br/>';
+            $rempli=false;
+        }
+        if (empty($lePrenom)==true) {
+            echo 'Le prenom n\'a pas été saisi<br/>';
+            $rempli=false;
+        }
         if (empty($lePassword)==true){
             echo 'Le mot de passe n\'a pas été saisi<br/>';
             $rempli=false; 
@@ -49,6 +74,8 @@ switch($action){
         if ($rempli){
             //supprimer les espaces avant/après saisie
             $leLogin = trim($leLogin);
+            $leNom = trim($leNom);
+            $lePrenom = trim($lePrenom);
             $lePassword = trim($lePassword);
 
             
@@ -80,9 +107,9 @@ switch($action){
                  
         }
         }
-        if($rempli && $loginOk && $passwordOk){
+        if($rempli && $loginOk && $passwordOk && $consentementOk){
                 echo 'tout est ok, nous allons pouvoir créer votre compte...<br/>';
-                $executionOK = $pdo->creeMedecin($leLogin, password_hash($lePassword, PASSWORD_DEFAULT));       
+                $executionOK = $pdo->creeMedecin($leLogin, $leNom, $lePrenom, password_hash($lePassword, PASSWORD_DEFAULT), $idVersion);       
                
                 if ($executionOK==true){
                     echo "c'est bon, votre compte a bien été créé ;-)";

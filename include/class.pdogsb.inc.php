@@ -110,17 +110,55 @@ $leResultat = $pdoStatement->fetch();
 }
 
 
-public function creeMedecin($email, $mdp)
+public function creeMedecin($email, $nom, $prenom, $mdp, $idVersion)
 {
    
-    $pdoStatement = PdoGsb::$monPdo->prepare("INSERT INTO medecin(id,mail, motDePasse,dateCreation,dateConsentement) "
-            . "VALUES (null, :leMail, :leMdp, now(),now())");
+    $pdoStatement = PdoGsb::$monPdo->prepare("INSERT INTO medecin(id,mail,nom,prenom,motDePasse,dateCreation) "
+            . "VALUES (null, :leMail, :leNom, :lePrenom, :leMdp, now())");
     $bv1 = $pdoStatement->bindValue(':leMail', $email);
-   
-    $bv2 = $pdoStatement->bindValue(':leMdp', $mdp);
+    $bv2 = $pdoStatement->bindValue(':leNom', $nom);
+    $bv3 = $pdoStatement->bindValue(':lePrenom', $prenom);
+    $bv4 = $pdoStatement->bindValue(':leMdp', $mdp);
     $execution = $pdoStatement->execute();
+
+    if ($execution) {
+        //l'id du médecin qui vient d'être créé, nécessaire pour lier la preuve de consentement
+        $idMedecin = PdoGsb::$monPdo->lastInsertId();
+        $this->enregistreConsentement($idMedecin, $idVersion);
+    }
+
     return $execution;
     
+}
+
+/**
+ * Retourne la version actuellement en vigueur de la politique de protection des données
+ * (la plus récemment publiée). C'est cette version, et uniquement celle-ci, que
+ * l'utilisateur voit et accepte au moment de l'inscription.
+ */
+public function donneDernierePolitiqueVersion()
+{
+    $pdoStatement = PdoGsb::$monPdo->prepare(
+        "SELECT id, nom, description, `dateDebutValidité`, `dateFinValidité` FROM politiqueversion "
+        . "ORDER BY `dateDebutValidité` DESC LIMIT 1"
+    );
+    $pdoStatement->execute();
+    return $pdoStatement->fetch();
+}
+
+/**
+ * Enregistre la preuve de consentement (RGPD art. 7-1) : qui, pour quelle version
+ * exacte du texte, et à quelle date.
+ */
+public function enregistreConsentement($idMedecin, $idVersion)
+{
+    $pdoStatement = PdoGsb::$monPdo->prepare(
+        "INSERT INTO consentement(idMedecin, idVersion, dateConsentement) "
+        . "VALUES (:idMedecin, :idVersion, now())"
+    );
+    $pdoStatement->bindValue(':idMedecin', $idMedecin, PDO::PARAM_INT);
+    $pdoStatement->bindValue(':idVersion', $idVersion, PDO::PARAM_INT);
+    return $pdoStatement->execute();
 }
 
 

@@ -30,11 +30,25 @@
 						
                                     <div class="content-wrap">
 						<legend>je suis médecin, je souhaite créer un compte</legend>
+							<?php $laPolitique = $pdo->donneDernierePolitiqueVersion(); ?>
 							<form method="post" action="index.php?uc=creation&action=valideCreation">
                                                             <input name="login" class="form-control" type="email" placeholder="mail"/>
 							    <input name="mdp" class="form-control" type="password" placeholder="password"/>
-                                                            <input name="prénom" class="form-control" type="text" placeholder="prénom"/>
+                                                            <input name="prenom" class="form-control" type="text" placeholder="prénom"/>
                                                             <input name="nom" class="form-control" type="text" placeholder="nom"/>
+								<br>
+                                                            <!-- On mémorise la version EXACTE de la politique proposée à l'utilisateur au
+                                                                 moment de l'affichage du formulaire : c'est cette version, et pas une autre,
+                                                                 qu'il aura acceptée en validant. Indispensable pour la preuve RGPD. -->
+                                                            <input type="hidden" name="idVersion" value="<?php echo htmlspecialchars($laPolitique['id']); ?>"/>
+                                                            <div class="checkbox">
+                                                                <label>
+                                                                    <input name="consentement" type="checkbox" required/>
+                                                                    J'atteste avoir lu et j'accepte notre
+                                                                    <a href="vues/v_politiqueprotectiondonnees.html" target="_blank">politique de protection des données</a>
+                                                                    (version <?php echo htmlspecialchars($laPolitique['nom']); ?>)
+                                                                </label>
+                                                            </div>
 								<br>
                                                             <input type="submit" class="btn btn-primary signup" value="Créer"/>
 							</form>
@@ -52,5 +66,6 @@
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="bootstrap/js/bootstrap.min.js"></script>
     <script src="js/custom.js"></script>
+    
   </body>
 </html>

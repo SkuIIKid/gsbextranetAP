@@ -31,9 +31,8 @@ switch($uc){
 	}
 	
 	}
-	
 
-include("vues/v_footer.php");
+	include("vues/v_footer.php");
 ?>
 
 
