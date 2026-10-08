@@ -21,7 +21,7 @@ switch($action){
 			include("vues/v_connexion.php");
 		}
 		else { 
-                        $infosMedecin = $pdo->donneLeMedecinByMail($login);
+            $infosMedecin = $pdo->donneLeMedecinByMail($login);
 			$id = $infosMedecin['id'];
 			$nom =  $infosMedecin['nom'];
 			$prenom = $infosMedecin['prenom'];

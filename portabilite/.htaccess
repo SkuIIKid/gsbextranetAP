@@ -1,0 +1,7 @@
+# Les fichiers JSON ne doivent jamais être accessibles directement par URL :
+# le téléchargement passe uniquement par le contrôleur (utilisateur connecté).
+Require all denied
+<IfModule !mod_authz_core.c>
+  Order allow,deny
+  Deny from all
+</IfModule>

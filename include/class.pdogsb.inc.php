@@ -210,6 +210,23 @@ function donneinfosmedecin($id){
     
 }
 
+/**
+ * Droit à la portabilité (RGPD art. 20) :
+ * retourne les données personnelles d'un médecin, c'est-à-dire toutes les
+ * colonnes de la table medecin SAUF l'id et l'empreinte du mot de passe.
+ * @param int $id identifiant du médecin
+ * @return array|false tableau associatif ou false si le médecin n'existe pas
+ */
+public function donneDonneesPortabilite($id){
+    // toutes les colonnes de la table medecin SAUF id et motDePasse
+    $pdoStatement = PdoGsb::$monPdo->prepare("SELECT nom, prenom, mail, dateNaissance, "
+            . "dateCreation, rpps, token, dateDiplome "
+            . "FROM medecin WHERE id = :lId");
+    $pdoStatement->bindValue(':lId', $id, PDO::PARAM_INT);
+    if (!$pdoStatement->execute())
+        throw new Exception("erreur dans la requête");
+    return $pdoStatement->fetch(PDO::FETCH_ASSOC);
+}
 
 }
 ?>
